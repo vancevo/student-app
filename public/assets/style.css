@@ -1,0 +1,17 @@
+body {
+    font-family: 'Inter', sans-serif;
+}
+/* Custom styles for message box */
+.message-box-overlay {
+    background-color: rgb(187, 48, 48);
+}
+.logout-btn-container {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+.logout-btn-container button {
+    transition: transform 0.2s ease-in-out;
+}
+.logout-btn-container button:hover {
+    transform: scale(1.05);
+}

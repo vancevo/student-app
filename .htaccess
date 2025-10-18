@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # 1. Chặn truy cập trực tiếp vào các thư mục logic
+    RewriteRule ^app/ - [F]
+    RewriteRule ^views/ - [F]
+
+    # 2. Yêu cầu chính: Chuyển hướng tất cả các yêu cầu đến thư mục public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # 1. Nếu yêu cầu là một file hoặc thư mục tồn tại (vd: /assets/css/style.css), thì bỏ qua
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # 2. Chuyển hướng tất cả các yêu cầu còn lại đến index.php
+    RewriteRule ^ index.php [L]
+</IfModule>
