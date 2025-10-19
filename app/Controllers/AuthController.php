@@ -10,7 +10,7 @@
         // [ACTION 1] Hiển thị form đăng nhập (GET /login)
         public function showLogin() {
             // Biến $error và $message được hiển thị trong views/auth/login.php
-            session_start();
+            // session_start() đã được gọi trong index.php
             $error = $_SESSION['error'] ?? null; 
             $message = $_SESSION['message'] ?? null;
             unset($_SESSION['error']);
@@ -21,7 +21,7 @@
 
         // [ACTION 2] Xử lý POST request Đăng nhập (Thay thế logic log.php)
         public function login() {
-            session_start();
+            // session_start() đã được gọi trong index.php
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $username = $_POST['username'] ?? '';
@@ -36,20 +36,20 @@
                     if ($user) {
                         $_SESSION['user_id'] = $user['id'];
                         $_SESSION['username'] = $user['username']; 
-                        header('Location: /home'); // Chuyển hướng thành công
+                        header('Location: /AQCoder/home'); // Chuyển hướng thành công
                         exit;
                     } else {
                         $_SESSION['error'] = "Tên đăng nhập hoặc Mật khẩu không đúng.";
                     }
                 }
             }
-            header('Location: /login'); 
+            header('Location: /AQCoder/login'); 
             exit;
         }
         
         // [ACTION 3] Xử lý POST request Đăng ký (Thay thế logic reg.php)
         public function register() {
-            session_start();
+            // session_start() đã được gọi trong index.php
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $fullname = trim($_POST['fullname'] ?? '');
@@ -65,7 +65,7 @@
                     
                     if ($success) {
                         $_SESSION['message'] = "Đăng ký thành công! Vui lòng Đăng nhập.";
-                        header('Location: /login'); 
+                        header('Location: /AQCoder/login'); 
                         exit;
                     } else {
                         $_SESSION['error'] = "Đăng ký thất bại. Tên đăng nhập có thể đã tồn tại.";
@@ -81,10 +81,10 @@
         
         // [ACTION 4] Xử lý Đăng xuất
         public function logout() {
-            session_start();
+            // session_start() đã được gọi trong index.php
             session_unset(); // Xóa tất cả biến session
             session_destroy(); // Hủy session
-            header('Location: /login');
+            header('Location: /AQCoder/login');
             exit;
         }
     }

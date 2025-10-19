@@ -1,9 +1,9 @@
 <?php 
     class HomeController {
         public function index() {
-            session_start();
+            // session_start() đã được gọi trong index.php
             if (!isset($_SESSION['user_id'])) {
-                header('Location: /login'); 
+                header('Location: /AQCoder/login'); 
                 exit;
             }
 

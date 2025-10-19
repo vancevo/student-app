@@ -7,13 +7,30 @@ class SurveyController {
     }
 
     /**
+     * [ACTION] Hiển thị trang khảo sát AQ (GET /survey)
+     */
+    public function index() {
+        // session_start() đã được gọi trong index.php
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /AQCoder/login'); 
+            exit;
+        }
+
+        // Load dummyData từ file config
+        $dummyData = require '../config/survey_data.php';
+
+        // Tải View Component survey.php
+        require '../views/survey.php'; 
+    }
+
+    /**
      * [ACTION] Xử lý POST request API để lưu kết quả khảo sát (Tuyến đường /save-survey).
      */
     public function processSaveSurvey() {
         header('Content-Type: application/json'); 
 
         $data = json_decode(file_get_contents('php://input'), true);
-
+        // Log để debug - xem toàn bộ dữ liệu đầu vào
         // 1. Xác thực cơ bản
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($data['userId'], $data['username'], $data['coreScores'])) {
             http_response_code(400); 
@@ -24,6 +41,7 @@ class SurveyController {
         $userId = (int)$data['userId'];
         $username = $data['username'];
         $scores = $data['coreScores'];
+        
 
         // 2. Xác thực điểm số
         foreach (['control', 'ownership', 'reach', 'endurance'] as $scoreName) {

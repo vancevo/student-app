@@ -1,10 +1,13 @@
+# File: public/.htaccess
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # 1. Nếu yêu cầu là một file hoặc thư mục tồn tại (vd: /assets/css/style.css), thì bỏ qua
+    # Điều kiện bỏ qua file/folder
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     
-    # 2. Chuyển hướng tất cả các yêu cầu còn lại đến index.php
-    RewriteRule ^ index.php [L]
+    # 🔑 SỬA LỖI: Thêm RewriteRule chính
+    # Chuyển hướng tất cả các yêu cầu còn lại (^) đến index.php
+    # [L]: Rule cuối cùng; [QSA]: Giữ lại Query String (nếu có)
+    RewriteRule ^ index.php [L,QSA] 
 </IfModule>

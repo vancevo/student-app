@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === 1. KHAI BÁO BIẾN ===
     const sidebarLinks = document.querySelectorAll('.sidebar-link');
     // Thay đổi selector để chỉ chọn các section trong content
-    const sections = document.querySelectorAll('.content .page-section'); 
+    const sections = document.querySelectorAll('.content .page-section');
     const surveyForm = document.getElementById('survey-form');
     const startSurveyBtn = document.getElementById('start-survey-btn');
     const customModal = document.getElementById('custom-modal');
@@ -16,8 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusTitle = document.getElementById('status-title');
     const statusMessage = document.getElementById('status-message');
     const closeStatusModalBtn = document.getElementById('close-status-modal-btn');
+
     let myChart = null;
-    
+
     // Lấy userId và username từ các thẻ meta hoặc biến JS được in ra bởi PHP
     // Vì chúng ta đang dùng PHP, chúng ta sẽ dựa vào data-attributes hoặc biến toàn cục.
     // Tạm thời lấy từ session_id() và biến PHP đã được home.php cũ in ra.
@@ -25,23 +26,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const username = '<?php echo htmlspecialchars($_SESSION["username"] ?? "Khách"); ?>'; // Giả định PHP in biến này
 
     // === 2. HÀM CHUNG ===
-    
+
     // Hàm hiển thị section
     function showSection(targetId) {
-        sections.forEach(section => {
+        sections.forEach((section) => {
             section.classList.add('hidden');
         });
         document.querySelector(targetId).classList.remove('hidden');
     }
-    
+
     // Hàm để kiểm tra trạng thái của form khảo sát (Giữ nguyên logic tốt của bạn)
     const checkFormValidity = () => {
         const radios = surveyForm.querySelectorAll('input[type="radio"]');
         const uniqueNames = new Set();
-        radios.forEach(radio => uniqueNames.add(radio.name));
-        
+        radios.forEach((radio) => uniqueNames.add(radio.name));
+
         let allAnswered = true;
-        uniqueNames.forEach(name => {
+        uniqueNames.forEach((name) => {
             const group = document.querySelector(`input[name="${name}"]:checked`);
             if (!group) {
                 allAnswered = false;
@@ -58,22 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
             submitSurveyBtn.disabled = true;
         }
     };
-    
-    // Hàm để lấy màu sắc dựa trên điểm số (Giữ nguyên logic tốt của bạn)
-    const getScoreColor = (score) => {
-        if (score <= 2) return 'rgb(255, 99, 132)'; 
-        if (score <= 4) return 'rgb(54, 162, 235)'; 
-        return 'rgb(75, 192, 192)'; 
-    };
 
-    // Hàm để lấy màu Tailwind CSS dựa trên điểm số (Giữ nguyên logic tốt của bạn)
-    const getTailwindColorClass = (score) => {
-        if (score <= 2) return 'bg-red-500';
-        if (score <= 4) return 'bg-blue-500';
-        return 'bg-green-500';
-    };
-    
-    // Hàm hiển thị modal thông báo
+    s; // Hàm hiển thị modal thông báo
     const showStatusModal = (title, message) => {
         statusTitle.textContent = title;
         statusMessage.textContent = message;
@@ -83,16 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // === 3. XỬ LÝ SỰ KIỆN ===
 
     // Xử lý chuyển đổi tab Sidebar (Tối ưu hóa)
-    sidebarLinks.forEach(link => {
+    sidebarLinks.forEach((link) => {
         link.addEventListener('click', (event) => {
             event.preventDefault();
             // Lấy ID section từ href, ví dụ: "#survey" -> "survey"
-            const targetId = link.getAttribute('href').substring(1); 
-            
+            const targetId = link.getAttribute('href').substring(1);
+
             // Nếu là liên kết nội bộ (#), xử lý chuyển đổi giao diện
             if (targetId) {
                 showSection(`#${targetId}`);
-                sidebarLinks.forEach(l => l.classList.remove('active'));
+                sidebarLinks.forEach((l) => l.classList.remove('active'));
                 link.classList.add('active');
             }
             // Nếu là liên kết Router (/logout), trình duyệt sẽ xử lý
@@ -103,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (startSurveyBtn) {
         startSurveyBtn.addEventListener('click', () => {
             // Sử dụng hàm showSection đã tối ưu
-            showSection('#survey'); 
-            sidebarLinks.forEach(l => l.classList.remove('active'));
+            showSection('#survey');
+            sidebarLinks.forEach((l) => l.classList.remove('active'));
             document.querySelector('.sidebar-link[href="/survey"]').classList.add('active');
         });
     }
@@ -113,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
     surveyForm.addEventListener('change', checkFormValidity);
     // Khởi tạo trạng thái ban đầu
     checkFormValidity();
-
 
     // Xử lý form khảo sát (Gửi AJAX đến Controller Component)
     if (surveyForm) {
@@ -130,11 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 control: parseInt(formData.get('control')) || 0,
                 ownership: parseInt(formData.get('ownership')) || 0,
                 reach: parseInt(formData.get('reach')) || 0,
-                endurance: parseInt(formData.get('endurance')) || 0,
+                endurance: parseInt(formData.get('endurance')) || 0
             };
-            
+
             // ... (Phần code hiển thị biểu đồ radar và thanh tiến trình giữ nguyên) ...
-            
+
             // Hiển thị hộp thoại tùy chỉnh
             customModal.classList.remove('hidden');
 
@@ -155,13 +141,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const result = await response.json();
                 if (result.success) {
-                    showStatusModal("Thành công!", "Kết quả khảo sát của bạn đã được lưu thành công.");
+                    surveyForm.reset();
+                    document.getElementById('results').classList.add('hidden');
+                    document.getElementById('control-score').textContent = '0';
+                    document.getElementById('ownership-score').textContent = '0';
+                    document.getElementById('reach-score').textContent = '0';
+                    document.getElementById('endurance-score').textContent = '0';
+                    showStatusModal('Thành công!', 'Kết quả khảo sát của bạn đã được lưu thành công.');
                 } else {
-                    showStatusModal("Lỗi!", `Không thể lưu kết quả. Lỗi: ${result.message}`);
+                    showStatusModal('Lỗi!', `Không thể lưu kết quả. Lỗi: ${result.message}`);
                 }
             } catch (error) {
-                showStatusModal("Lỗi!", "Không thể kết nối với máy chủ để lưu dữ liệu. Vui lòng thử lại sau.");
-                console.error("Lỗi khi gửi dữ liệu:", error);
+                showStatusModal('Lỗi!', 'Không thể kết nối với máy chủ để lưu dữ liệu. Vui lòng thử lại sau.');
+                console.error('Lỗi khi gửi dữ liệu:', error);
             }
         });
     }
@@ -170,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeModalBtn) closeModalBtn.addEventListener('click', () => customModal.classList.add('hidden'));
     if (closeErrorModalBtn) closeErrorModalBtn.addEventListener('click', () => errorModal.classList.add('hidden'));
     if (closeStatusModalBtn) closeStatusModalBtn.addEventListener('click', () => statusModal.classList.add('hidden'));
-    
+
     // Xử lý nút đăng xuất (Tối ưu hóa)
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {

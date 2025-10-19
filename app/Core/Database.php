@@ -6,11 +6,11 @@
         // Ngăn chặn tạo instance trực tiếp
         private function __construct() { 
             // Lấy các thông tin từ file connect cũ của bạn
-            $host = 'localhost';
+            $host = '127.0.0.1';
             $db   = 'aqcoder';
             $user = 'root';
             $pass = 'root';
-            $port = 8889; // Cần thêm port vào DSN nếu khác cổng mặc định (3306)
+            $port = 8889; // Port MySQL của MAMP
 
             // DSN (Data Source Name) cho PDO
             $dsn = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
