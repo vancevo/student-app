@@ -4,11 +4,36 @@ require 'partials/header.php';
 
 <div class="max-w-6xl mx-auto">
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Chào mừng, <?= htmlspecialchars($username) ?>!</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Chào mừng, <?= htmlspecialchars($fullname) ?> - LỚP: <?= htmlspecialchars($class) ?></h1>
         <p class="text-gray-600">Chào mừng bạn đến với hệ thống đánh giá AQ (Accountability Quotient)</p>
+        
+        <!-- User Stats -->
+        <div class="mt-4 flex flex-wrap gap-4">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
+                <i class="fas fa-star mr-2"></i>
+                <span class="font-semibold"><?= $experience ?> XP</span>
+            </div>
+            <div class="bg-white border-2 border-gray-200 px-4 py-2 rounded-lg flex items-center" style="border-color: <?= $rankColor ?>;">
+                <i class="fas fa-trophy mr-2" style="color: <?= $rankColor ?>;"></i>
+                <span class="font-semibold" style="color: <?= $rankColor ?>;"><?= htmlspecialchars($rankName) ?></span>
+            </div>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Rank & Experience Card -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full" style="background-color: <?= $rankColor ?>20;">
+                    <i class="fas fa-trophy text-2xl" style="color: <?= $rankColor ?>;"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-800"><?= htmlspecialchars($rankName) ?></h3>
+                    <p class="text-gray-600"><?= $experience ?> điểm kinh nghiệm</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Dashboard Cards -->
         <div class="bg-white rounded-lg shadow-lg p-6">
             <div class="flex items-center">

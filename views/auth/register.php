@@ -44,6 +44,11 @@ unset($_SESSION['error']); // Xóa khỏi session sau khi lấy ra
                            class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:outline-none focus:border-blue-400 transition-colors duration-200">
                 </div>
                 <div class="mb-6">
+                    <label for="register-class" class="block text-gray-700 text-sm font-semibold mb-2">Lớp</label>
+                    <input type="text" id="register-class" name="class" placeholder="Ví dụ: 12A1" required
+                           class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:outline-none focus:border-blue-400 transition-colors duration-200">
+                </div>
+                <div class="mb-6">
                     <label for="register-username" class="block text-gray-700 text-sm font-semibold mb-2">Tên đăng nhập</label>
                     <input type="text" id="register-username" name="username" placeholder="Tên đăng nhập của bạn" required
                            class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:outline-none focus:border-blue-400 transition-colors duration-200">
@@ -58,7 +63,7 @@ unset($_SESSION['error']); // Xóa khỏi session sau khi lấy ra
                     Đăng Ký
                 </button><br>
                 
-                <div align="center"><a href="/login">Quay lại trang đăng nhập?</a></div>
+                <div align="center"><a href="/AQCoder">Quay lại trang đăng nhập?</a></div>
             </form>
         </div>
         

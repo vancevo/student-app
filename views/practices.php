@@ -1,4 +1,6 @@
 <?php
+// Dữ liệu đã được truyền từ Controller
+// $practices và $completionStatus đã có sẵn
 // Load dummy practice data
 require_once '../config/practices_data.php';
 
@@ -16,7 +18,10 @@ if (empty($practices)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài tập rèn luyện - AQCoder</title>
+    <link rel="stylesheet" href="/assets/css/style.css"> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 flex min-h-screen font-sans antialiased">
     <?php require 'partials/sidebar.php'; ?>
@@ -39,7 +44,22 @@ if (empty($practices)) {
                 </div>
             <?php else: ?>
                 <!-- Practice Statistics -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <!-- <div class="bg-white rounded-lg shadow-lg p-4">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-100 rounded-lg">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-500">Hoàn thành</p>
+                                <p class="text-lg font-semibold text-gray-900">
+                                    <?php echo count(array_filter($completionStatus, fn($status) => $status === 'excellent')); ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div> -->
                     <div class="bg-white rounded-lg shadow-lg p-4">
                         <div class="flex items-center">
                             <div class="p-2 bg-green-100 rounded-lg">
@@ -94,17 +114,36 @@ if (empty($practices)) {
                                     <h3 class="text-xl font-semibold text-gray-800 line-clamp-2">
                                         <?php echo htmlspecialchars($practice['title']); ?>
                                     </h3>
-                                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                                    <div class="flex gap-2 items-end space-y-1">
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium
+                                            <?php 
+                                            switch($practice['difficulty']) {
+                                                case 'easy': echo 'bg-green-100 text-green-800'; break;
+                                                case 'medium': echo 'bg-yellow-100 text-yellow-800'; break;
+                                                case 'hard': echo 'bg-red-100 text-red-800'; break;
+                                                default: echo 'bg-gray-100 text-gray-800';
+                                            }
+                                            ?>">
+                                            <?php echo ucfirst($practice['difficulty']); ?>
+                                        </span>
+                                        
+                                        <!-- Trạng thái Hoàn thành -->
                                         <?php 
-                                        switch($practice['difficulty']) {
-                                            case 'easy': echo 'bg-green-100 text-green-800'; break;
-                                            case 'medium': echo 'bg-yellow-100 text-yellow-800'; break;
-                                            case 'hard': echo 'bg-red-100 text-red-800'; break;
-                                            default: echo 'bg-gray-100 text-gray-800';
-                                        }
-                                        ?>">
-                                        <?php echo ucfirst($practice['difficulty']); ?>
-                                    </span>
+                                        $status = $completionStatus[$practice['id']] ?? 'not_attempted';
+                                        $statusConfig = [
+                                            'excellent' => ['text' => 'Hoàn thành', 'class' => 'bg-green-100 text-green-800'],
+                                            'good' => ['text' => 'Tốt', 'class' => 'bg-blue-100 text-blue-800'],
+                                            'wrong_answer' => ['text' => 'Sai', 'class' => 'bg-red-100 text-red-800'],
+                                            'time_limit' => ['text' => 'Timeout', 'class' => 'bg-orange-100 text-orange-800'],
+                                            'error' => ['text' => 'Lỗi', 'class' => 'bg-red-100 text-red-800'],
+                                            'not_attempted' => ['text' => 'Chưa làm', 'class' => 'bg-gray-100 text-gray-600']
+                                        ];
+                                        $config = $statusConfig[$status] ?? $statusConfig['not_attempted'];
+                                        ?>
+                                        <!-- <span class="px-2 py-1 rounded-full text-xs font-medium <?php echo $config['class']; ?>">
+                                            <?php echo $config['text']; ?>
+                                        </span> -->
+                                    </div>
                                 </div>
                                 
                                 <p class="text-gray-600 text-sm mb-4 line-clamp-3">
@@ -119,14 +158,12 @@ if (empty($practices)) {
                                         </svg>
                                         ID: <?php echo $practice['id']; ?>
                                     </div>
-                                    <?php if (isset($practice['created_at'])): ?>
                                     <div class="flex items-center text-xs text-gray-500">
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
-                                        <?php echo date('d/m/Y', strtotime($practice['created_at'])); ?>
+                                        <?php echo isset($practice['created_at']) ? date('d/m/Y', strtotime($practice['created_at'])) : date('d/m/Y'); ?>
                                     </div>
-                                    <?php endif; ?>
                                 </div>
                                 
                                 <div class="flex justify-between items-center">
@@ -141,8 +178,24 @@ if (empty($practices)) {
                                             C++
                                         </span> -->
                                     </div>
+                                    <?php 
+                                    $buttonText = 'Làm bài';
+                                    $buttonClass = 'bg-blue-500 hover:bg-blue-600 text-white';
+                                    
+                                    // if ($status === 'excellent') {
+                                    //     $buttonText = 'Xem lại';
+                                    //     $buttonClass = 'bg-green-500 hover:bg-green-600 text-white';
+                                    // } elseif ($status === 'good') {
+                                    //     $buttonText = 'Cải thiện';
+                                    //     $buttonClass = 'bg-blue-500 hover:bg-blue-600 text-white';
+                                    // } elseif (in_array($status, ['wrong_answer', 'time_limit', 'error'])) {
+                                    //     $buttonText = 'Thử lại';
+                                    //     $buttonClass = 'bg-orange-500 hover:bg-orange-600 text-white';
+                                    // }
+                                    ?>
                                     <a href="/AQCoder/practice/<?php echo $practice['id']; ?>" 
-                                       class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                       class="<?php echo $buttonClass; ?> px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                        <!-- <?php echo $buttonText; ?> -->
                                         Làm bài
                                     </a>
                                 </div>

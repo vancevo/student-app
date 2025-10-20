@@ -1,11 +1,16 @@
 <?php
-// Load dummy practice data
-require_once '../config/practices_data.php';
+// Dữ liệu $practice, $submissions được truyền từ Controller
+// Kiểm tra an toàn để tránh lỗi "Trying to access array offset on false"
+if (!$practice || !is_array($practice) || !isset($practice['id'])) {
+    header('Location: /AQCoder/practices');
+    exit;
+}
 
-// Get practice detail data - sử dụng truy cập trực tiếp
-$practiceDetail = isset($practice_detail_data[$practice['id']]) ? $practice_detail_data[$practice['id']] : null;
-$testCases = $practiceDetail ? $practiceDetail['test_cases'] : [];
-$sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
+// Fallback: nếu không có test cases trong DB, lấy từ dummy data để hiển thị
+// require_once '../config/practices_data.php';
+// $practiceDetail = isset($practice_detail_data[$practice['id']]) ? $practice_detail_data[$practice['id']] : null;
+$practiceDetail = $practice;
+$testCases = $practiceDetail ? ($practiceDetail['test_cases'] ?? []) : [];
 ?>
 <!DOCTYPE html>
 <html lang="vi"></html>
@@ -30,7 +35,6 @@ $sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
                 <div>
                     <h1 class="text-3xl font-bold text-gray-800 mb-2">
                         <?php echo htmlspecialchars($practice['title']); ?>
-                        <?php echo $practiceDetail['practice']['title']; ?>
                     </h1>
                     <div class="flex items-center space-x-4">
                         <span class="px-3 py-1 rounded-full text-sm font-medium
@@ -55,6 +59,59 @@ $sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Left Column: Problem Description -->
                 <div class="space-y-6">
+                    <!-- Problem Statement -->
+                    <?php if ($practiceDetail && isset($practiceDetail['problem_statement'])): ?>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Đề bài</h2>
+                        <div class="prose max-w-none">
+                            <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                                <?php echo htmlspecialchars($practiceDetail['problem_statement']); ?>
+                            </p>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Input Format -->
+                    <?php if ($practiceDetail && isset($practiceDetail['input_format'])): ?>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Định dạng Input</h2>
+                        <div class="prose max-w-none">
+                            <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                                <?php echo htmlspecialchars($practiceDetail['input_format']); ?>
+                            </p>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Output Format -->
+                    <?php if ($practiceDetail && isset($practiceDetail['output_format'])): ?>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Định dạng Output</h2>
+                        <div class="prose max-w-none">
+                            <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                                <?php echo htmlspecialchars($practiceDetail['output_format']); ?>
+                            </p>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Constraints -->
+                    <?php if ($practiceDetail && isset($practiceDetail['constraints']) && !empty($practiceDetail['constraints'])): ?>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Ràng buộc</h2>
+                        <div class="space-y-2">
+                            <?php foreach ($practiceDetail['constraints'] as $constraint): ?>
+                            <div class="flex items-start">
+                                <span class="text-blue-600 mr-2">•</span>
+                                <p class="text-gray-700"><?php echo htmlspecialchars($constraint); ?></p>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Fallback Description -->
+                    <?php if (!$practiceDetail || !isset($practiceDetail['problem_statement'])): ?>
                     <div class="bg-white rounded-lg shadow-lg p-6">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Mô tả bài tập</h2>
                         <div class="prose max-w-none">
@@ -63,6 +120,7 @@ $sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
                             </p>
                         </div>
                     </div>
+                    <?php endif; ?>
 
                     <!-- Test Cases -->
                     <?php if (!empty($testCases)): ?>
@@ -93,45 +151,6 @@ $sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                    <!-- Submission History -->
-                    <?php if (!empty($submissions)): ?>
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Lịch sử nộp bài</h2>
-                        <div class="space-y-3">
-                            <?php foreach ($submissions as $submission): ?>
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <div class="flex justify-between items-start mb-2">
-                                    <div class="text-sm text-gray-600">
-                                        <?php echo date('d/m/Y H:i:s', strtotime($submission['submitted_at'])); ?>
-                                    </div>
-                                    <span class="px-2 py-1 rounded text-xs font-medium
-                                        <?php 
-                                        switch($submission['status']) {
-                                            case 'accepted': echo 'bg-green-100 text-green-800'; break;
-                                            case 'wrong_answer': echo 'bg-red-100 text-red-800'; break;
-                                            case 'time_limit': echo 'bg-yellow-100 text-yellow-800'; break;
-                                            case 'memory_limit': echo 'bg-orange-100 text-orange-800'; break;
-                                            case 'error': echo 'bg-red-100 text-red-800'; break;
-                                            case 'pending': echo 'bg-blue-100 text-blue-800'; break;
-                                            default: echo 'bg-gray-100 text-gray-800';
-                                        }
-                                        ?>">
-                                        <?php echo ucfirst(str_replace('_', ' ', $submission['status'])); ?>
-                                    </span>
-                                </div>
-                                <div class="text-sm text-gray-600 mb-2">
-                                    Ngôn ngữ: <?php echo htmlspecialchars($submission['language']); ?>
-                                </div>
-                                <details class="text-sm">
-                                    <summary class="cursor-pointer text-blue-600 hover:text-blue-800">Xem code</summary>
-                                    <pre class="mt-2 p-3 bg-gray-100 rounded text-xs overflow-x-auto"><code><?php echo htmlspecialchars($submission['code']); ?></code></pre>
-                                </details>
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -196,7 +215,62 @@ $sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kết quả:</label>
                         <div id="output-content" class="bg-gray-100 border border-gray-300 rounded-lg p-4 min-h-32 font-mono text-sm whitespace-pre-wrap"></div>
                     </div>
+
+                    <!-- Submission History -->
+                    <?php if (!empty($submissions)): ?>
+                    <div class="rounded-lg p-6 mt-10">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Lịch sử nộp bài</h2>
+                        <div class="space-y-3">
+                            <?php foreach ($submissions as $submission): ?>
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="text-sm text-gray-600">
+                                        <?php echo date('d/m/Y H:i:s', strtotime($submission['submitted_at'])); ?>
+                                    </div>
+                                    <span class="px-2 py-1 rounded text-xs font-medium
+                                        <?php 
+                                        switch($submission['status']) {
+                                            case 'excellent': echo 'bg-green-100 text-green-800'; break;
+                                            case 'accepted': echo 'bg-green-100 text-green-800'; break;
+                                            case 'good': echo 'bg-blue-100 text-blue-800'; break;
+                                            case 'wrong_answer': echo 'bg-red-100 text-red-800'; break;
+                                            case 'time_limit': echo 'bg-yellow-100 text-yellow-800'; break;
+                                            case 'memory_limit': echo 'bg-orange-100 text-orange-800'; break;
+                                            case 'error': echo 'bg-red-100 text-red-800'; break;
+                                            case 'pending': echo 'bg-gray-100 text-gray-800'; break;
+                                            default: echo 'bg-gray-100 text-gray-800';
+                                        }
+                                        ?>">
+                                        <?php 
+                                        $statusText = $submission['status'];
+                                        switch($submission['status']) {
+                                            case 'excellent': $statusText = 'Xuất sắc'; break;
+                                            case 'accepted': $statusText = 'Chấp nhận'; break;
+                                            case 'good': $statusText = 'Tốt'; break;
+                                            case 'wrong_answer': $statusText = 'Sai đáp án'; break;
+                                            case 'time_limit': $statusText = 'Quá thời gian'; break;
+                                            case 'memory_limit': $statusText = 'Quá bộ nhớ'; break;
+                                            case 'error': $statusText = 'Lỗi'; break;
+                                            case 'pending': $statusText = 'Đang chờ'; break;
+                                        }
+                                        echo $statusText;
+                                        ?>
+                                    </span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">
+                                    Ngôn ngữ: <?php echo htmlspecialchars($submission['language']); ?>
+                                </div>
+                                <details class="text-sm">
+                                    <summary class="cursor-pointer text-blue-600 hover:text-blue-800">Xem code</summary>
+                                    <pre class="mt-2 p-3 bg-gray-100 rounded text-xs overflow-x-auto"><code><?php echo htmlspecialchars($submission['code']); ?></code></pre>
+                                </details>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -204,8 +278,6 @@ $sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
     <script>
         let editor;
         
-        // Sample codes from PHP
-        const sampleCodes = <?php echo json_encode($sampleCodes); ?>;
         
         // Initialize CodeMirror
         function initEditor() {
@@ -230,11 +302,11 @@ $sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
         
         function getModeForLanguage(lang) {
             switch(lang) {
-                case 'javascript': return 'javascript';
+                // case 'javascript': return 'javascript';
                 case 'python': return 'python';
-                case 'cpp': return 'text/x-c++src';
-                case 'java': return 'text/x-java';
-                default: return 'javascript';
+                // case 'cpp': return 'text/x-c++src';
+                // case 'java': return 'text/x-java';
+                default: return 'python';
             }
         }
         
@@ -341,7 +413,12 @@ $sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Nộp bài thành công!');
+                    let message = `Nộp bài thành công!\n\n`;
+                    message += `Kết quả: ${result.passed}/${result.total} test cases passed\n`;
+                    message += `Trạng thái: ${result.status}\n`;
+                    message += `Thông báo: ${result.message}`;
+                    
+                    alert(message);
                     // Reload page to show updated submission history
                     window.location.reload();
                 } else {
@@ -366,7 +443,7 @@ $sampleCodes = $practiceDetail ? $practiceDetail['sample_code'] : [];
                 //     defaultCode = '// Nhập code JavaScript của bạn ở đây\nconsole.log("Hello World");';
                 //     break;
                 case 'python':
-                    defaultCode = '# Nhập code Python của bạn ở đây\n# Ví dụ: Nhập 2 số và tính tổng\nA = int(input("Nhập số nguyên A: "))\nB = int(input("Nhập số nguyên B: "))\nprint(f"Tổng của {A} và {B} là: {A + B}")';
+                    defaultCode = '# Viết code của bạn ở đây\n# Ví dụ: đọc 2 số nguyên\n# a = int(input())\n# b = int(input())\n# print(a + b)';
                     break;
                 // case 'cpp':
                 //     defaultCode = '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Nhập code C++ của bạn ở đây\n    cout << "Hello World" << endl;\n    return 0;\n}';

@@ -1,9 +1,14 @@
 <?php
 class PracticesController {
     private $practiceModel;
+    private $userModel;
 
     public function __construct(PracticeModel $practiceModel) {
         $this->practiceModel = $practiceModel;
+        
+        // Khởi tạo UserModel để cập nhật experience
+        $database = Database::getInstance();
+        $this->userModel = new UserModel($database->getConnection());
     }
 
     /**
@@ -16,7 +21,12 @@ class PracticesController {
             exit;
         }
 
+        // Lấy danh sách practices từ DB, fallback dummy
         $practices = $this->practiceModel->getPractices();
+
+        // Lấy trạng thái hoàn thành của user
+        $completionStatus = $this->practiceModel->getCompletionStatus($_SESSION['user_id']);
+        
         // Tải View Component practices.php
         require '../views/practices.php'; 
     }
@@ -30,12 +40,18 @@ class PracticesController {
             exit;
         }
 
-        $practice = $this->practiceModel->getPracticeById($id);
+        // Lấy practice từ DB trước, nếu không có thì fallback dummy
+        // $practice = $this->practiceModel->getPracticeById($id);
+        // if (!$practice) {
+            $practice = $this->practiceModel->getPracticeFromDummyData($id);
+        // }
+
+        error_log("Practice data: " . print_r($practice, true));
         
-        if (!$practice) {
-            header('Location: /AQCoder/practices'); 
-            exit;
-        }
+        // if (!$practice) {
+        //     header('Location: /AQCoder/practices'); 
+        //     exit;
+        // }
 
         // Lấy lịch sử submissions của user cho practice này
         $submissions = $this->practiceModel->getUserSubmissions($_SESSION['user_id'], $id);
@@ -275,6 +291,21 @@ class PracticesController {
         return '1'; // Input mặc định chung
     }
 
+    /**
+     * Kiểm tra xem user đã hoàn thành bài tập này chưa (để tránh cộng XP nhiều lần)
+     */
+    private function hasUserCompletedPractice(int $userId, int $practiceId): bool {
+        $sql = "SELECT COUNT(*) as count FROM submissions 
+                WHERE user_id = ? AND exercise_id = ? AND status IN ('excellent', 'good')";
+        
+        $database = Database::getInstance();
+        $stmt = $database->getConnection()->prepare($sql);
+        $stmt->execute([$userId, $practiceId]);
+        $result = $stmt->fetch();
+        
+        return $result['count'] > 0;
+    }
+
     // /**
     //  * Thực thi JavaScript code
     //  */
@@ -437,6 +468,9 @@ class PracticesController {
     /**
      * Xử lý submit code
      */
+    /**
+ * Xử lý submit code
+ */
     public function submitCode() {
         if (!isset($_SESSION['user_id'])) {
             http_response_code(401);
@@ -459,25 +493,105 @@ class PracticesController {
         }
 
         try {
+            $practiceId = (int)$input['practice_id'];
+            
+            // **THAY ĐỔI QUAN TRỌNG: Gọi Model để lấy test cases**
+            // Controller không còn tự mình require file data nữa.
+            $testCases = $this->practiceModel->getTestCasesForPractice($practiceId);
+
+            // Thêm kiểm tra nếu không tìm thấy test case
+            if (empty($testCases)) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy test case cho bài tập này.']);
+                return;
+            }
+
+            // Bước 1: Kiểm tra xem user đã hoàn thành bài tập này chưa
+            $hasCompletedBefore = $this->hasUserCompletedPractice($_SESSION['user_id'], $practiceId);
+
+            // Bước 2: Lưu bài nộp ban đầu với trạng thái "pending"
             $submissionId = $this->practiceModel->saveSubmission(
                 $_SESSION['user_id'],
-                $input['practice_id'],
+                $practiceId,
                 $input['language'],
                 $input['code']
             );
 
-            // TODO: Ở đây sẽ có logic để chạy test cases và cập nhật kết quả
-            // Hiện tại chỉ đơn giản set status là accepted
-            $this->practiceModel->updateSubmissionStatus($submissionId, 'accepted');
+            // Bước 3: Bắt đầu quá trình chấm bài
+            $total = count($testCases);
+            $passed = 0;
+            $hadTimeout = false;
+            $hadRuntimeError = false;
+            $details = [];
 
+            foreach ($testCases as $tc) {
+                $run = $this->executeCode($input['language'], $input['code'], $practiceId, $tc['input']);
+                $actual = trim((string)($run['output'] ?? ''));
+                $expected = trim((string)$tc['expected_output']);
+                $error = $run['error'] ?? '';
+
+                $timeout = (strpos($error, 'timeout') !== false);
+                $runtimeError = ($error !== '' && !$timeout);
+                $ok = ($error === '' && $actual === $expected);
+
+                if ($ok) { $passed++; }
+                if ($timeout) { $hadTimeout = true; }
+                if ($runtimeError) { $hadRuntimeError = true; }
+
+                $details[] = [
+                    'test_case_id' => $tc['id'],
+                    'input' => $tc['input'],
+                    'expected' => $expected,
+                    'actual' => $actual,
+                    'passed' => $ok,
+                    'error' => $error,
+                ];
+            }
+
+            $status = 'wrong_answer'; // Đặt trạng thái mặc định là 'wrong_answer'
+
+            if ($total > 0 && $passed === $total) {
+                // 1. Ưu tiên cao nhất: Pass 100% -> excellent
+                $status = 'excellent';
+            } elseif ($hadTimeout) {
+                // 2. Nếu không pass hết nhưng bị timeout -> time_limit
+                $status = 'time_limit';
+            } elseif ($hadRuntimeError) {
+                // 3. Nếu không pass hết nhưng bị lỗi thực thi -> error
+                $status = 'error';
+            } elseif ($total > 0 && ($passed / $total) >= 0.5) {
+                // 4. Nếu không lỗi, và pass được từ 50% trở lên -> good
+                $status = 'good';
+            }
+
+            // Bước 4: Cập nhật trạng thái bài nộp trong database
+            $this->practiceModel->updateSubmissionStatus($submissionId, $status);
+
+            // Bước 5: Cộng điểm kinh nghiệm nếu pass hết test cases và chưa hoàn thành bài tập này
+            $experienceGained = 0;
+            if ($status === 'excellent' && !$hasCompletedBefore) {
+                // Cộng 10 XP cho việc hoàn thành bài tập
+                if ($this->userModel->updateExperience($_SESSION['user_id'], 10)) {
+                    $experienceGained = 10;
+                }
+            }
+
+            // Bước 6: Trả kết quả về cho client
             echo json_encode([
-                'success' => true, 
+                'success' => true,
                 'submission_id' => $submissionId,
-                'message' => 'Code submitted successfully'
+                'status' => $status,
+                'passed' => $passed,
+                'total' => $total,
+                'details' => $details,
+                'experience_gained' => $experienceGained,
+                'message' => $status === 'excellent' ? 'Passed all test cases' : 'Some test cases failed'
             ]);
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Error submitting code']);
+            // Ghi log lỗi ra file thay vì hiển thị cho người dùng
+            error_log('Error submitting code: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'An internal server error occurred.']);
         }
     }
 }

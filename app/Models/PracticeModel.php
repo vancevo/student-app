@@ -4,20 +4,71 @@
         public function __construct(PDO $db) { $this->db = $db; }
 
         /**
-         * Lấy danh sách tất cả practices
+         * Lấy danh sách tất cả practices từ database (nếu có), fallback sang dummy
          */
         public function getPractices(): array {
-            $stmt = $this->db->query("SELECT * FROM practices ORDER BY id ASC");
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // try {
+            //     $stmt = $this->db->query("SELECT id, title, description, difficulty, created_at FROM practices ORDER BY id ASC");
+            //     $rows = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+            //     if (!empty($rows)) {
+            //         return $rows;
+            //     }
+            // } catch (Exception $e) {
+            //     // ignore and fallback
+            // }
+            return $this->getPracticesFromDummyData();
         }
 
         /**
-         * Lấy thông tin chi tiết practice theo ID
+         * Lấy danh sách tất cả practices từ dummy data
+         */
+        public function getPracticesFromDummyData(): array {
+            // Load dummy data
+            require_once __DIR__ . '/../../config/practices_data.php';
+            
+            // Trả về trực tiếp biến $practice_data thay vì dùng hàm helper
+            return isset($practice_data) && is_array($practice_data) ? $practice_data : [];
+        }
+
+        /**
+         * Lấy thông tin practice từ dummy data theo ID
+         */
+        public function getPracticeFromDummyData(int $id): array|false {
+            // Load dummy data
+            require_once __DIR__ . '/../../config/practices_data.php';
+            
+            // Lấy dữ liệu cơ bản từ practice_data
+            $basicData = null;
+            foreach ($practice_data as $practice) {
+                if ($practice['id'] == $id) {
+                    $basicData = $practice;
+                    break;
+                }
+            }
+            
+            if (!$basicData) {
+                return false;
+            }
+            
+            // Lấy dữ liệu chi tiết từ practice_detail_data
+            $detailData = isset($practice_detail_data[$id]) ? $practice_detail_data[$id] : [];
+            
+            // Merge hai loại dữ liệu
+            return array_merge($basicData, $detailData);
+        }
+
+        /**
+         * Lấy practice theo ID từ database
          */
         public function getPracticeById(int $id): array|false {
-            $stmt = $this->db->prepare("SELECT * FROM practices WHERE id = ?");
-            $stmt->execute([$id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            try {
+                $stmt = $this->db->prepare("SELECT id, title, description, difficulty, created_at FROM practices WHERE id = ? LIMIT 1");
+                $stmt->execute([$id]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                return $row ?: false;
+            } catch (Exception $e) {
+                return false;
+            }
         }
 
         /**
@@ -62,5 +113,55 @@
             $stmt = $this->db->prepare("SELECT * FROM test_cases WHERE practice_id = ? ORDER BY id ASC");
             $stmt->execute([$practiceId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        /**
+         * Lấy test cases từ dummy data cho một practice
+         */
+        public function getTestCasesForPractice(int $practiceId): array {
+            // Load dummy data
+            require_once __DIR__ . '/../../config/practices_data.php';
+            
+            if (isset($practice_detail_data[$practiceId]['test_cases'])) {
+                return $practice_detail_data[$practiceId]['test_cases'];
+            }
+            
+            return [];
+        }
+
+        /**
+         * Lấy trạng thái hoàn thành của user cho tất cả practices
+         */
+        public function getCompletionStatus(int $userId): array {
+            $sql = "SELECT exercise_id, MAX(status) as best_status 
+                    FROM submissions 
+                    WHERE user_id = ? 
+                    GROUP BY exercise_id";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$userId]);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $completionStatus = [];
+            foreach ($results as $result) {
+                $completionStatus[$result['exercise_id']] = $result['best_status'];
+            }
+            
+            return $completionStatus;
+        }
+
+        /**
+         * Lấy trạng thái hoàn thành của user cho một practice cụ thể
+         */
+        public function getPracticeCompletionStatus(int $userId, int $practiceId): string {
+            $sql = "SELECT MAX(status) as best_status 
+                    FROM submissions 
+                    WHERE user_id = ? AND exercise_id = ?";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$userId, $practiceId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $result['best_status'] ?? 'not_attempted';
         }
     }

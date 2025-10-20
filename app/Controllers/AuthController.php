@@ -43,7 +43,7 @@
                     }
                 }
             }
-            header('Location: /AQCoder/login'); 
+            header('Location: /AQCoder'); 
             exit;
         }
         
@@ -56,16 +56,17 @@
                 $birthday = $_POST['birthday'] ?? '';
                 $username = trim($_POST['username'] ?? '');
                 $password = $_POST['password'] ?? '';
+                $class = trim($_POST['class'] ?? '');
                 
-                if (empty($username) || empty($password) || empty($fullname)) {
+                if (empty($username) || empty($password) || empty($fullname) || empty($class)) {
                     $_SESSION['error'] = "Vui lòng điền đầy đủ các trường bắt buộc.";
                 } else {
                     // Gọi UserModel Component (đã sửa lỗi bảo mật)
-                    $success = $this->userModel->registerUser($fullname, $birthday, $username, $password);
+                    $success = $this->userModel->registerUser($fullname, $birthday, $username, $password, $class);
                     
                     if ($success) {
                         $_SESSION['message'] = "Đăng ký thành công! Vui lòng Đăng nhập.";
-                        header('Location: /AQCoder/login'); 
+                        header('Location: /AQCoder'); 
                         exit;
                     } else {
                         $_SESSION['error'] = "Đăng ký thất bại. Tên đăng nhập có thể đã tồn tại.";

@@ -88,6 +88,9 @@ if ($controllerClass === 'AuthController') {
         } elseif ($action === 'reset') {
             $controller->reset();
             return;
+        } elseif ($action === 'seed-existing') {
+            $controller->seedExisting();
+            return;
         }
     }
 } elseif ($controllerClass === 'PracticesController') {
