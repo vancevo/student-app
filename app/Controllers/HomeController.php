@@ -1,10 +1,12 @@
 <?php 
     class HomeController {
         private $userModel;
+        private $surveyModel;
 
         public function __construct() {
             $database = Database::getInstance();
             $this->userModel = new UserModel($database->getConnection());
+            $this->surveyModel = new SurveyModel($database->getConnection());
         }
 
         public function index() {
@@ -21,6 +23,9 @@
                 header('Location: /AQCoder/login');
                 exit;
             }
+
+            // Lấy kết quả khảo sát của user
+            $surveyResults = $this->surveyModel->getUserSurveyResults($_SESSION['user_id']);
 
             // Truyền dữ liệu cho view
             $username = $user['username'];
