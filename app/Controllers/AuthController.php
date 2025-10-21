@@ -88,4 +88,47 @@
             header('Location: /AQCoder/login');
             exit;
         }
+
+        // [ACTION 5] Hiển thị form quên mật khẩu (GET /forgot-password)
+        public function showForgotPassword() {
+            $error = $_SESSION['error'] ?? null; 
+            $message = $_SESSION['message'] ?? null;
+            $newPassword = $_SESSION['new_password'] ?? null;
+            unset($_SESSION['error']);
+            unset($_SESSION['message']);
+            unset($_SESSION['new_password']);
+            
+            require '../views/auth/forgot-password.php'; 
+        }
+
+        // [ACTION 6] Xử lý POST request quên mật khẩu
+        public function processForgotPassword() {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $username = trim($_POST['username'] ?? '');
+                
+                if (empty($username)) {
+                    $_SESSION['error'] = "Vui lòng nhập tên đăng nhập.";
+                } else {
+                    // Kiểm tra user có tồn tại không
+                    $user = $this->userModel->findUserByUsername($username);
+                    
+                    if ($user) {
+                        // Reset password về 5 số ngẫu nhiên
+                        $newPassword = $this->userModel->resetPasswordToRandom($username);
+                        
+                        if ($newPassword) {
+                            $_SESSION['message'] = "Mật khẩu đã được reset thành công!";
+                            $_SESSION['new_password'] = $newPassword;
+                        } else {
+                            $_SESSION['error'] = "Có lỗi xảy ra khi reset mật khẩu.";
+                        }
+                    } else {
+                        $_SESSION['error'] = "Tên đăng nhập không tồn tại.";
+                    }
+                }
+            }
+            
+            header('Location: /AQCoder/forgot-password');
+            exit;
+        }
     }

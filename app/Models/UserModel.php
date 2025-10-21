@@ -90,4 +90,38 @@
             $stmt = $this->db->prepare($sql);
             return $stmt->execute([$experience, $userId]);
         }
+
+        // Tìm user theo username
+        public function findUserByUsername(string $username): ?array {
+            $sql = "SELECT id, username, fullname FROM users WHERE username = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$username]);
+            $user = $stmt->fetch();
+            
+            if ($user) {
+                unset($user['password']); // Loại bỏ password khỏi kết quả
+                return $user;
+            }
+            return null;
+        }
+
+        // Reset password về 5 số ngẫu nhiên
+        public function resetPasswordToRandom(string $username): ?string {
+            // Tạo password mới 5 số ngẫu nhiên
+            $newPassword = str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
+            
+            // Mã hóa password mới
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            
+            // Cập nhật password trong database
+            $sql = "UPDATE users SET password = ? WHERE username = ?";
+            $stmt = $this->db->prepare($sql);
+            $success = $stmt->execute([$hashedPassword, $username]);
+            
+            if ($success && $stmt->rowCount() > 0) {
+                return $newPassword; // Trả về password thô để hiển thị cho user
+            }
+            
+            return null;
+        }
     }

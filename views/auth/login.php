@@ -46,7 +46,7 @@
                         <input type="checkbox" id="remember-me" name="remember-me" class="rounded text-blue-400 focus:ring-blue-300">
                         <label for="remember-me" class="ml-2">Ghi nhớ tài khoản</label>
                     </div>
-                    <a href="#" class="text-blue-500 hover:text-blue-700 font-medium">Quên mật khẩu?</a>
+                    <a href="/AQCoder/forgot-password" class="text-blue-500 hover:text-blue-700 font-medium">Quên mật khẩu?</a>
                 </div>
                 <button type="submit" id="login-button"
                         class="w-full bg-blue-400 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 mb-4">

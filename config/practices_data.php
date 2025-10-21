@@ -77,7 +77,21 @@ $practice_data = [
         'difficulty' => 'hard',
         'description' => 'Triển khai thuật toán sắp xếp nhanh (Quick Sort) để sắp xếp mảng.',
         'created_at' => '2024-01-24 17:30:00'
-    ]
+    ],
+    [
+        'id' => 11, 
+        'title' => 'Sắp xếp danh sách số nguyên', 
+        'difficulty' => 'medium',
+        'description' => 'Sắp xếp một danh sách các số nguyên theo thứ tự tăng dần. Bài tập cơ bản về thuật toán sắp xếp.',
+        'created_at' => '2025-10-21 21:07:30'
+    ],
+    [
+        'id' => 12, 
+        'title' => 'Sắp xếp chuỗi theo độ dài', 
+        'difficulty' => 'easy',
+        'description' => 'Sắp xếp một danh sách chuỗi theo độ dài tăng dần. Bài tập về xử lý chuỗi và hàm sắp xếp.',
+        'created_at' => '2025-10-21 21:17:15'
+    ],
 ];
 
 // Dữ liệu chi tiết của các bài tập
@@ -279,7 +293,46 @@ $practice_detail_data = [
             ['id' => 34, 'input' => "1\n42", 'expected_output' => '42', 'is_hidden' => true],
         ],
     ],
-    
+    11 => [
+        'id' => 11,
+        'problem_statement' => 'Viết một chương trình nhận vào một danh sách các số nguyên và sắp xếp danh sách này theo thứ tự tăng dần.',
+        'input_format' => 'Một dòng chứa các số nguyên, cách nhau bởi dấu cách.',
+        'output_format' => 'Một dòng chứa các số nguyên đã được sắp xếp, cách nhau bởi dấu cách.',
+        'constraints' => [
+            '1 ≤ Số lượng phần tử ≤ 1,000',
+            '-1,000,000,000 ≤ giá trị phần tử ≤ 1,000,000,000'
+        ],
+        'sample_code' => [
+            'python' => "# Viết code của bạn ở đây\ndef solve():\n    arr = list(map(int, input().split()))\n    arr.sort()\n    print(' '.join(map(str, arr)))\n\nsolve()\n"
+        ],
+        'test_cases' => [
+            ['id' => 35, 'input' => '5 2 4 6 1 3', 'expected_output' => '1 2 3 4 5 6', 'is_hidden' => false],
+            ['id' => 36, 'input' => '10 20 30 40 50', 'expected_output' => '10 20 30 40 50', 'is_hidden' => false],
+            ['id' => 37, 'input' => '9 8 7 6 5', 'expected_output' => '5 6 7 8 9', 'is_hidden' => false],
+            ['id' => 38, 'input' => '4 5 4 3 5 3', 'expected_output' => '3 3 4 4 5 5', 'is_hidden' => true],
+            ['id' => 39, 'input' => '-1 5 -10 0 8', 'expected_output' => '-10 -1 0 5 8', 'is_hidden' => true],
+        ],
+    ],
+    12 => [
+        'id' => 12,
+        'problem_statement' => 'Viết một chương trình nhận vào một danh sách các chuỗi (từ) và sắp xếp chúng dựa trên độ dài, từ ngắn nhất đến dài nhất. Nếu hai chuỗi có cùng độ dài, thứ tự của chúng không quan trọng.',
+        'input_format' => 'Một dòng chứa các chuỗi, cách nhau bởi dấu cách.',
+        'output_format' => 'Một dòng chứa các chuỗi đã được sắp xếp, cách nhau bởi dấu cách.',
+        'constraints' => [
+            '1 ≤ Số lượng chuỗi ≤ 100',
+            '1 ≤ Độ dài mỗi chuỗi ≤ 1,000'
+        ],
+        'sample_code' => [
+            'python' => "# Viết code của bạn ở đây\ndef solve():\n    words = input().split()\n    # Sắp xếp các chuỗi dựa trên độ dài của chúng\n    words.sort(key=len)\n    print(' '.join(words))\n\nsolve()\n"
+        ],
+        'test_cases' => [
+            ['id' => 40, 'input' => 'Python Java C++ Go Rust', 'expected_output' => 'Go C++ Java Rust Python', 'is_hidden' => false],
+            ['id' => 41, 'input' => 'apple banana cherry date', 'expected_output' => 'date apple banana cherry', 'is_hidden' => false],
+            ['id' => 42, 'input' => 'a bb ccc dddd', 'expected_output' => 'a bb ccc dddd', 'is_hidden' => false],
+            ['id' => 43, 'input' => 'hi hello bye welcome', 'expected_output' => 'hi bye hello welcome', 'is_hidden' => true],
+            ['id' => 44, 'input' => 'cat dog bird elephant', 'expected_output' => 'cat dog bird elephant', 'is_hidden' => true],
+        ],
+    ],
 ];
 
 // Hàm helper để lấy practice data theo ID

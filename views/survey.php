@@ -116,7 +116,7 @@
                                 <div class="bg-gray-50 p-4 rounded-lg">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="font-medium">Control (Kiểm soát)</span>
-                                        <span class="text-sm text-gray-600" id="control-progress-text">0/5</span>
+                                        <span class="text-sm text-gray-600" id="control-progress-text">0/25</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
                                         <div id="control-progress-bar" class="h-3 rounded-full transition-all duration-500" style="width: 0%; background-color: #ef4444;"></div>
@@ -128,7 +128,7 @@
                                 <div class="bg-gray-50 p-4 rounded-lg">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="font-medium">Ownership (Trách nhiệm)</span>
-                                        <span class="text-sm text-gray-600" id="ownership-progress-text">0/5</span>
+                                        <span class="text-sm text-gray-600" id="ownership-progress-text">0/25</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
                                         <div id="ownership-progress-bar" class="h-3 rounded-full transition-all duration-500" style="width: 0%; background-color: #ef4444;"></div>
@@ -140,7 +140,7 @@
                                 <div class="bg-gray-50 p-4 rounded-lg">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="font-medium">Reach (Phạm vi)</span>
-                                        <span class="text-sm text-gray-600" id="reach-progress-text">0/5</span>
+                                        <span class="text-sm text-gray-600" id="reach-progress-text">0/25</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
                                         <div id="reach-progress-bar" class="h-3 rounded-full transition-all duration-500" style="width: 0%; background-color: #ef4444;"></div>
@@ -152,7 +152,7 @@
                                 <div class="bg-gray-50 p-4 rounded-lg">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="font-medium">Endurance (Sức chịu đựng)</span>
-                                        <span class="text-sm text-gray-600" id="endurance-progress-text">0/5</span>
+                                        <span class="text-sm text-gray-600" id="endurance-progress-text">0/25</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
                                         <div id="endurance-progress-bar" class="h-3 rounded-full transition-all duration-500" style="width: 0%; background-color: #ef4444;"></div>
@@ -181,22 +181,22 @@
             const progressText = document.getElementById(`${category}-progress-text`);
             const messageElement = document.getElementById(`${category}-message`);
             
-            // Calculate percentage (score out of 5)
-            const percentage = (score / 5) * 100;
+            // Calculate percentage (score out of 25)
+            const percentage = (score / 25) * 100;
             const roundedScore = Math.round(score);
             
             // Update progress text
-            progressText.textContent = `${roundedScore}/5`;
+            progressText.textContent = `${roundedScore}/25`;
             
             // Update progress bar width and color
             progressBar.style.width = `${percentage}%`;
             
             // Set color based on score
-            if (score <= 2) {
+            if (score <= 10) {
                 progressBar.style.backgroundColor = '#ef4444'; // Red
-            } else if (score <= 3) {
+            } else if (score <= 15) {
                 progressBar.style.backgroundColor = '#f59e0b'; // Orange
-            } else if (score <= 4) {
+            } else if (score <= 20) {
                 progressBar.style.backgroundColor = '#3b82f6'; // Blue
             } else {
                 progressBar.style.backgroundColor = '#10b981'; // Green
@@ -204,11 +204,11 @@
             
             // Set motivational message based on score
             let message = '';
-            if (score <= 2) {
+            if (score <= 10) {
                 message = 'Bạn có thể cải thiện ở khía cạnh này. Hãy bắt đầu với các thử thách nhỏ để nâng cao sự tự tin.';
-            } else if (score <= 3) {
+            } else if (score <= 15) {
                 message = 'Điểm số của bạn khá tốt. Hãy tiếp tục rèn luyện để đạt đến mức xuất sắc.';
-            } else if (score <= 4) {
+            } else if (score <= 20) {
                 message = 'Bạn đang làm rất tốt! Hãy duy trì và phát triển thêm kỹ năng này.';
             } else {
                 message = 'Xuất sắc! Bạn đã đạt được mức độ cao trong khía cạnh này.';
@@ -266,10 +266,10 @@
                 categoryGroups[category].push(allAnswers[questionId]);
             });
             
-            // Tính điểm trung bình cho mỗi category
+            // Tính tổng điểm cho mỗi category (max 25 điểm)
             Object.keys(categoryGroups).forEach(category => {
                 const scores = categoryGroups[category];
-                categoryScores[category] = Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length));
+                categoryScores[category] = scores.reduce((sum, score) => sum + score, 0);
             });
             
             // Display results
@@ -312,9 +312,9 @@
                     scales: {
                         r: {
                             beginAtZero: true,
-                            max: 5,
+                            max: 25,
                             ticks: {
-                                stepSize: 1
+                                stepSize: 5
                             }
                         }
                     },

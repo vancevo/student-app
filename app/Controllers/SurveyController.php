@@ -53,7 +53,7 @@ class SurveyController {
         // 2. Xác thực điểm số
         foreach (['control', 'ownership', 'reach', 'endurance'] as $scoreName) {
             $score = $scores[$scoreName] ?? null;
-            if (!is_numeric($score) || $score < 1 || $score > 5) {
+            if (!is_numeric($score) || $score < 5 || $score > 25) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => "Lỗi xác thực: Điểm số '$scoreName' không hợp lệ."]);
                 exit();

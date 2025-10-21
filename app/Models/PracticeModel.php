@@ -119,8 +119,24 @@
          * Lấy test cases từ dummy data cho một practice
          */
         public function getTestCasesForPractice(int $practiceId): array {
-            // Load dummy data
-            require_once __DIR__ . '/../../config/practices_data.php';
+            static $practice_detail_data = null;
+            
+            // Load dummy data chỉ một lần
+            if ($practice_detail_data === null) {
+                $configPath = __DIR__ . '/../../config/practices_data.php';
+                if (file_exists($configPath)) {
+                    // Tạo một scope riêng để load data
+                    $practice_detail_data = [];
+                    $loadData = function() use ($configPath, &$practice_detail_data) {
+                        ob_start();
+                        include $configPath;
+                        ob_end_clean();
+                    };
+                    $loadData();
+                } else {
+                    $practice_detail_data = [];
+                }
+            }
             
             if (isset($practice_detail_data[$practiceId]['test_cases'])) {
                 return $practice_detail_data[$practiceId]['test_cases'];
@@ -133,10 +149,9 @@
          * Lấy trạng thái hoàn thành của user cho tất cả practices
          */
         public function getCompletionStatus(int $userId): array {
-            $sql = "SELECT exercise_id, MAX(status) as best_status 
-                    FROM submissions 
-                    WHERE user_id = ? 
-                    GROUP BY exercise_id";
+            $sql = "SELECT practice_id, 'excellent' as best_status 
+                    FROM completed_practices 
+                    WHERE user_id = ?";
             
             $stmt = $this->db->prepare($sql);
             $stmt->execute([$userId]);
@@ -144,7 +159,7 @@
             
             $completionStatus = [];
             foreach ($results as $result) {
-                $completionStatus[$result['exercise_id']] = $result['best_status'];
+                $completionStatus[$result['practice_id']] = $result['best_status'];
             }
             
             return $completionStatus;

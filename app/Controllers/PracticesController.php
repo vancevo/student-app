@@ -189,11 +189,38 @@ class PracticesController {
     }
 
     /**
+     * Load practice detail data without function conflicts
+     */
+    private function loadPracticeDetailData() {
+        static $practice_detail_data = null;
+        
+        if ($practice_detail_data === null) {
+            $configPath = __DIR__ . '/../../config/practices_data.php';
+            if (file_exists($configPath)) {
+                // Đọc file và extract chỉ phần practice_detail_data array
+                $content = file_get_contents($configPath);
+                
+                // Tìm và extract practice_detail_data array
+                if (preg_match('/\$practice_detail_data\s*=\s*\[(.*?)\];/s', $content, $matches)) {
+                    $arrayContent = '[' . $matches[1] . ']';
+                    $practice_detail_data = eval('return ' . $arrayContent . ';');
+                } else {
+                    $practice_detail_data = [];
+                }
+            } else {
+                $practice_detail_data = [];
+            }
+        }
+        
+        return $practice_detail_data;
+    }
+
+    /**
      * Thực thi Python code
      */
     private function executePython($code, $tempFile, $practiceId = 1, $customInput = '') {
         // Load practice data to get test cases
-        require_once __DIR__ . '/../../config/practices_data.php';
+        $practice_detail_data = $this->loadPracticeDetailData();
         
         // Use custom input if provided, otherwise use test case or default
         $testInput = '';
@@ -295,8 +322,8 @@ class PracticesController {
      * Kiểm tra xem user đã hoàn thành bài tập này chưa (để tránh cộng XP nhiều lần)
      */
     private function hasUserCompletedPractice(int $userId, int $practiceId): bool {
-        $sql = "SELECT COUNT(*) as count FROM submissions 
-                WHERE user_id = ? AND exercise_id = ? AND status IN ('excellent', 'good')";
+        $sql = "SELECT COUNT(*) as count FROM completed_practices 
+                WHERE user_id = ? AND practice_id = ?";
         
         $database = Database::getInstance();
         $stmt = $database->getConnection()->prepare($sql);
@@ -495,8 +522,7 @@ class PracticesController {
         try {
             $practiceId = (int)$input['practice_id'];
             
-            // **THAY ĐỔI QUAN TRỌNG: Gọi Model để lấy test cases**
-            // Controller không còn tự mình require file data nữa.
+            // **CHỈ SỬ DỤNG CONFIG FILE: Lấy test cases từ config**
             $testCases = $this->practiceModel->getTestCasesForPractice($practiceId);
 
             // Thêm kiểm tra nếu không tìm thấy test case
@@ -506,18 +532,7 @@ class PracticesController {
                 return;
             }
 
-            // Bước 1: Kiểm tra xem user đã hoàn thành bài tập này chưa
-            $hasCompletedBefore = $this->hasUserCompletedPractice($_SESSION['user_id'], $practiceId);
-
-            // Bước 2: Lưu bài nộp ban đầu với trạng thái "pending"
-            $submissionId = $this->practiceModel->saveSubmission(
-                $_SESSION['user_id'],
-                $practiceId,
-                $input['language'],
-                $input['code']
-            );
-
-            // Bước 3: Bắt đầu quá trình chấm bài
+            // **BỎ QUA DATABASE: Chỉ chạy test cases từ config file**
             $total = count($testCases);
             $passed = 0;
             $hadTimeout = false;
@@ -564,27 +579,34 @@ class PracticesController {
                 $status = 'good';
             }
 
-            // Bước 4: Cập nhật trạng thái bài nộp trong database
-            $this->practiceModel->updateSubmissionStatus($submissionId, $status);
-
-            // Bước 5: Cộng điểm kinh nghiệm nếu pass hết test cases và chưa hoàn thành bài tập này
+            // **KIỂM TRA VÀ CỘNG XP: Chỉ cộng điểm nếu chưa hoàn thành bài tập này**
             $experienceGained = 0;
-            if ($status === 'excellent' && !$hasCompletedBefore) {
-                // Cộng 10 XP cho việc hoàn thành bài tập
-                if ($this->userModel->updateExperience($_SESSION['user_id'], 10)) {
-                    $experienceGained = 10;
+            if ($status === 'excellent') {
+                // Kiểm tra xem user đã hoàn thành bài tập này chưa
+                $hasCompletedBefore = $this->hasUserCompletedPractice($_SESSION['user_id'], $practiceId);
+                
+                if (!$hasCompletedBefore) {
+                    // Cộng 10 XP cho việc hoàn thành bài tập lần đầu (pass hết test cases)
+                    if ($this->userModel->updateExperience($_SESSION['user_id'], 10)) {
+                        $experienceGained = 10;
+                        // Lưu lại ID bài tập đã hoàn thành
+                        $this->markPracticeAsCompleted($_SESSION['user_id'], $practiceId);
+                    }
+                } else {
+                    // Đã hoàn thành rồi, không cộng điểm
+                    $experienceGained = 0;
                 }
             }
 
-            // Bước 6: Trả kết quả về cho client
+            // **KHÔNG LƯU DATABASE: Chỉ trả kết quả về cho client**
             echo json_encode([
                 'success' => true,
-                'submission_id' => $submissionId,
+                'submission_id' => null, // Không có submission ID vì không lưu database
                 'status' => $status,
                 'passed' => $passed,
                 'total' => $total,
                 'details' => $details,
-                'experience_gained' => $experienceGained,
+                'experience_gained' => $experienceGained, // Cộng XP khi pass hết test cases
                 'message' => $status === 'excellent' ? 'Passed all test cases' : 'Some test cases failed'
             ]);
         } catch (Exception $e) {
@@ -592,6 +614,24 @@ class PracticesController {
             // Ghi log lỗi ra file thay vì hiển thị cho người dùng
             error_log('Error submitting code: ' . $e->getMessage());
             echo json_encode(['success' => false, 'message' => 'An internal server error occurred.']);
+        }
+    }
+
+    /**
+     * Lưu lại ID bài tập đã hoàn thành vào database
+     */
+    private function markPracticeAsCompleted(int $userId, int $practiceId): bool {
+        try {
+            $database = Database::getInstance();
+            $stmt = $database->getConnection()->prepare("
+                INSERT INTO completed_practices (user_id, practice_id, completed_at) 
+                VALUES (?, ?, NOW())
+                ON DUPLICATE KEY UPDATE completed_at = NOW()
+            ");
+            return $stmt->execute([$userId, $practiceId]);
+        } catch (Exception $e) {
+            error_log('Error marking practice as completed: ' . $e->getMessage());
+            return false;
         }
     }
 }

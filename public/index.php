@@ -35,17 +35,18 @@ if ($uri === 'index.php') {
 }
 
 $routes = [
-    ''            => ['AuthController', 'showLogin'],       // URL gốc (/)
-    'login'       => ['AuthController', 'login'],          // POST Đăng nhập
-    'register'    => ['AuthController', 'register'],       // POST/GET Đăng ký
-    'logout'      => ['AuthController', 'logout'],         // Đăng xuất
-    'home'        => ['HomeController', 'index'],          // Trang Chủ
-    'survey'      => ['SurveyController', 'index'],        // Trang Khảo sát AQ
-    'practices'   => ['PracticesController', 'index'],    // Trang Bài tập rèn luyện
-    'save-survey' => ['SurveyController', 'processSaveSurvey'], // API Khảo sát (AJAX POST)
-    'run-code'    => ['PracticesController', 'runCode'],  // API Chạy thử Code (AJAX POST)
-    'submit-code' => ['PracticesController', 'submitCode'], // API Submit Code (AJAX POST)
-    'database'    => ['DatabaseController', 'index'],     // Quản lý Database
+    ''                => ['AuthController', 'showLogin'],       // URL gốc (/)
+    'login'           => ['AuthController', 'login'],          // POST Đăng nhập
+    'register'        => ['AuthController', 'register'],       // POST/GET Đăng ký
+    'logout'          => ['AuthController', 'logout'],         // Đăng xuất
+    'forgot-password' => ['AuthController', 'showForgotPassword'], // GET/POST Quên mật khẩu
+    'home'            => ['HomeController', 'index'],          // Trang Chủ
+    'survey'          => ['SurveyController', 'index'],        // Trang Khảo sát AQ
+    'practices'       => ['PracticesController', 'index'],    // Trang Bài tập rèn luyện
+    'save-survey'     => ['SurveyController', 'processSaveSurvey'], // API Khảo sát (AJAX POST)
+    'run-code'        => ['PracticesController', 'runCode'],  // API Chạy thử Code (AJAX POST)
+    'submit-code'     => ['PracticesController', 'submitCode'], // API Submit Code (AJAX POST)
+    'database'        => ['DatabaseController', 'index'],     // Quản lý Database
 ];
 
 // --- 3. PHÂN PHỐI YÊU CẦU (DISPATCHING) ---
@@ -56,6 +57,11 @@ if (preg_match('/^practice\/(\d+)$/', $uri, $matches)) {
     $method = 'showPractice';
 } elseif (array_key_exists($uri, $routes)) {
     [$controllerClass, $method] = $routes[$uri]; 
+    
+    // Xử lý đặc biệt cho forgot-password: GET hiển thị form, POST xử lý reset
+    if ($uri === 'forgot-password' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $method = 'processForgotPassword';
+    }
 } else {
     // 404 Not Found
     http_response_code(404);
