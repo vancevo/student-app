@@ -149,9 +149,9 @@ require 'partials/header.php';
                     scales: {
                         r: {
                             beginAtZero: true,
-                            max: 5,
+                            max: 25,
                             ticks: {
-                                stepSize: 1
+                                stepSize: 5
                             }
                         }
                     },

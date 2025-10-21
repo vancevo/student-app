@@ -61,18 +61,18 @@
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="font-medium">Control (Kiểm soát)</span>
-                                <span class="text-sm text-gray-600"><?= number_format($surveyResults['control_score'], 1) ?>/5</span>
+                                <span class="text-sm text-gray-600"><?= number_format($surveyResults['control_score'], 1) ?>/25</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                                <div class="h-3 rounded-full transition-all duration-500" style="width: <?= ($surveyResults['control_score'] / 5) * 100 ?>%; background-color: <?= $surveyResults['control_score'] <= 2 ? '#ef4444' : ($surveyResults['control_score'] <= 3 ? '#f59e0b' : ($surveyResults['control_score'] <= 4 ? '#3b82f6' : '#10b981')) ?>;"></div>
+                                <div class="h-3 rounded-full transition-all duration-500" style="width: <?= ($surveyResults['control_score'] / 25) * 100 ?>%; background-color: <?= $surveyResults['control_score'] <= 10 ? '#ef4444' : ($surveyResults['control_score'] <= 15 ? '#f59e0b' : ($surveyResults['control_score'] <= 20 ? '#3b82f6' : '#10b981')) ?>;"></div>
                             </div>
                             <p class="text-sm text-gray-600">
                                 <?php 
-                                if ($surveyResults['control_score'] <= 2) {
+                                if ($surveyResults['control_score'] <= 10) {
                                     echo 'Bạn có thể cải thiện ở khía cạnh này. Hãy bắt đầu với các thử thách nhỏ để nâng cao sự tự tin.';
-                                } elseif ($surveyResults['control_score'] <= 3) {
+                                } elseif ($surveyResults['control_score'] <= 15) {
                                     echo 'Điểm số của bạn khá tốt. Hãy tiếp tục rèn luyện để đạt đến mức xuất sắc.';
-                                } elseif ($surveyResults['control_score'] <= 4) {
+                                } elseif ($surveyResults['control_score'] <= 20) {
                                     echo 'Bạn đang làm rất tốt! Hãy duy trì và phát triển thêm kỹ năng này.';
                                 } else {
                                     echo 'Xuất sắc! Bạn đã đạt được mức độ cao trong khía cạnh này.';
@@ -85,18 +85,18 @@
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="font-medium">Ownership (Trách nhiệm)</span>
-                                <span class="text-sm text-gray-600"><?= number_format($surveyResults['ownership_score'], 1) ?>/5</span>
+                                <span class="text-sm text-gray-600"><?= number_format($surveyResults['ownership_score'], 1) ?>/25</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                                <div class="h-3 rounded-full transition-all duration-500" style="width: <?= ($surveyResults['ownership_score'] / 5) * 100 ?>%; background-color: <?= $surveyResults['ownership_score'] <= 2 ? '#ef4444' : ($surveyResults['ownership_score'] <= 3 ? '#f59e0b' : ($surveyResults['ownership_score'] <= 4 ? '#3b82f6' : '#10b981')) ?>;"></div>
+                                <div class="h-3 rounded-full transition-all duration-500" style="width: <?= ($surveyResults['ownership_score'] / 25) * 100 ?>%; background-color: <?= $surveyResults['ownership_score'] <= 10 ? '#ef4444' : ($surveyResults['ownership_score'] <= 15 ? '#f59e0b' : ($surveyResults['ownership_score'] <= 20 ? '#3b82f6' : '#10b981')) ?>;"></div>
                             </div>
                             <p class="text-sm text-gray-600">
                                 <?php 
-                                if ($surveyResults['ownership_score'] <= 2) {
+                                if ($surveyResults['ownership_score'] <= 10) {
                                     echo 'Bạn có thể cải thiện ở khía cạnh này. Hãy bắt đầu với các thử thách nhỏ để nâng cao sự tự tin.';
-                                } elseif ($surveyResults['ownership_score'] <= 3) {
+                                } elseif ($surveyResults['ownership_score'] <= 15) {
                                     echo 'Điểm số của bạn khá tốt. Hãy tiếp tục rèn luyện để đạt đến mức xuất sắc.';
-                                } elseif ($surveyResults['ownership_score'] <= 4) {
+                                } elseif ($surveyResults['ownership_score'] <= 20) {
                                     echo 'Bạn đang làm rất tốt! Hãy duy trì và phát triển thêm kỹ năng này.';
                                 } else {
                                     echo 'Xuất sắc! Bạn đã đạt được mức độ cao trong khía cạnh này.';
@@ -109,18 +109,18 @@
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="font-medium">Reach (Phạm vi)</span>
-                                <span class="text-sm text-gray-600"><?= number_format($surveyResults['reach_score'], 1) ?>/5</span>
+                                <span class="text-sm text-gray-600"><?= number_format($surveyResults['reach_score'], 1) ?>/25</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                                <div class="h-3 rounded-full transition-all duration-500" style="width: <?= ($surveyResults['reach_score'] / 5) * 100 ?>%; background-color: <?= $surveyResults['reach_score'] <= 2 ? '#ef4444' : ($surveyResults['reach_score'] <= 3 ? '#f59e0b' : ($surveyResults['reach_score'] <= 4 ? '#3b82f6' : '#10b981')) ?>;"></div>
+                                <div class="h-3 rounded-full transition-all duration-500" style="width: <?= ($surveyResults['reach_score'] / 25) * 100 ?>%; background-color: <?= $surveyResults['reach_score'] <= 10 ? '#ef4444' : ($surveyResults['reach_score'] <= 15 ? '#f59e0b' : ($surveyResults['reach_score'] <= 20 ? '#3b82f6' : '#10b981')) ?>;"></div>
                             </div>
                             <p class="text-sm text-gray-600">
                                 <?php 
-                                if ($surveyResults['reach_score'] <= 2) {
+                                if ($surveyResults['reach_score'] <= 10) {
                                     echo 'Bạn có thể cải thiện ở khía cạnh này. Hãy bắt đầu với các thử thách nhỏ để nâng cao sự tự tin.';
-                                } elseif ($surveyResults['reach_score'] <= 3) {
+                                } elseif ($surveyResults['reach_score'] <= 15) {
                                     echo 'Điểm số của bạn khá tốt. Hãy tiếp tục rèn luyện để đạt đến mức xuất sắc.';
-                                } elseif ($surveyResults['reach_score'] <= 4) {
+                                } elseif ($surveyResults['reach_score'] <= 20) {
                                     echo 'Bạn đang làm rất tốt! Hãy duy trì và phát triển thêm kỹ năng này.';
                                 } else {
                                     echo 'Xuất sắc! Bạn đã đạt được mức độ cao trong khía cạnh này.';
@@ -133,18 +133,18 @@
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="font-medium">Endurance (Sức chịu đựng)</span>
-                                <span class="text-sm text-gray-600"><?= number_format($surveyResults['endurance_score'], 1) ?>/5</span>
+                                <span class="text-sm text-gray-600"><?= number_format($surveyResults['endurance_score'], 1) ?>/25</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                                <div class="h-3 rounded-full transition-all duration-500" style="width: <?= ($surveyResults['endurance_score'] / 5) * 100 ?>%; background-color: <?= $surveyResults['endurance_score'] <= 2 ? '#ef4444' : ($surveyResults['endurance_score'] <= 3 ? '#f59e0b' : ($surveyResults['endurance_score'] <= 4 ? '#3b82f6' : '#10b981')) ?>;"></div>
+                                <div class="h-3 rounded-full transition-all duration-500" style="width: <?= ($surveyResults['endurance_score'] / 25) * 100 ?>%; background-color: <?= $surveyResults['endurance_score'] <= 10 ? '#ef4444' : ($surveyResults['endurance_score'] <= 15 ? '#f59e0b' : ($surveyResults['endurance_score'] <= 20 ? '#3b82f6' : '#10b981')) ?>;"></div>
                             </div>
                             <p class="text-sm text-gray-600">
                                 <?php 
-                                if ($surveyResults['endurance_score'] <= 2) {
+                                if ($surveyResults['endurance_score'] <= 10) {
                                     echo 'Bạn có thể cải thiện ở khía cạnh này. Hãy bắt đầu với các thử thách nhỏ để nâng cao sự tự tin.';
-                                } elseif ($surveyResults['endurance_score'] <= 3) {
+                                } elseif ($surveyResults['endurance_score'] <= 15) {
                                     echo 'Điểm số của bạn khá tốt. Hãy tiếp tục rèn luyện để đạt đến mức xuất sắc.';
-                                } elseif ($surveyResults['endurance_score'] <= 4) {
+                                } elseif ($surveyResults['endurance_score'] <= 20) {
                                     echo 'Bạn đang làm rất tốt! Hãy duy trì và phát triển thêm kỹ năng này.';
                                 } else {
                                     echo 'Xuất sắc! Bạn đã đạt được mức độ cao trong khía cạnh này.';

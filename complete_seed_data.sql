@@ -89,6 +89,20 @@ CREATE TABLE IF NOT EXISTS aq_survey_results (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 1.8. Tạo bảng completed_practices (bài tập đã hoàn thành)
+CREATE TABLE IF NOT EXISTS completed_practices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    practice_id INT NOT NULL,
+    first_completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    completion_count INT NOT NULL DEFAULT 1,
+    best_score ENUM('accepted', 'excellent', 'good') NOT NULL DEFAULT 'accepted',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (practice_id) REFERENCES practices(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_practice (user_id, practice_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- =============================================
 -- 2. SEED DỮ LIỆU CHO TẤT CẢ CÁC BẢNG
 -- =============================================
@@ -253,6 +267,55 @@ INSERT IGNORE INTO aq_survey_results (user_id, username, control_score, ownershi
 (7, 'hoangvane', 8, 9, 8, 9, 34, '2024-01-18 09:00:00', '2024-01-18 09:00:00'),
 (8, 'vuthif', 7, 6, 7, 8, 28, '2024-01-18 16:00:00', '2024-01-18 16:00:00');
 
+-- 2.8. Insert completed practices mẫu
+INSERT IGNORE INTO completed_practices (user_id, practice_id, first_completed_at, last_completed_at, completion_count, best_score) VALUES
+-- Admin đã hoàn thành nhiều bài tập
+(1, 1, '2024-01-15 10:30:00', '2024-01-15 10:30:00', 1, 'accepted'),
+(1, 2, '2024-01-16 09:20:00', '2024-01-16 09:20:00', 1, 'accepted'),
+(1, 3, '2024-01-17 14:30:00', '2024-01-17 14:30:00', 1, 'accepted'),
+(1, 4, '2024-01-18 16:20:00', '2024-01-18 16:20:00', 1, 'accepted'),
+
+-- Test user đã hoàn thành một số bài tập
+(2, 1, '2024-01-15 11:15:00', '2024-01-15 11:15:00', 1, 'accepted'),
+(2, 2, '2024-01-16 10:45:00', '2024-01-16 10:45:00', 1, 'accepted'),
+(2, 3, '2024-01-17 15:30:00', '2024-01-17 15:30:00', 2, 'excellent'),
+
+-- Nguyễn Văn A đã hoàn thành bài tập cơ bản
+(3, 1, '2024-01-15 12:00:00', '2024-01-15 12:00:00', 1, 'accepted'),
+(3, 2, '2024-01-16 11:30:00', '2024-01-16 11:30:00', 1, 'accepted'),
+
+-- Trần Thị B đã hoàn thành bài tập khó
+(4, 3, '2024-01-17 14:30:00', '2024-01-17 14:30:00', 1, 'accepted'),
+(4, 4, '2024-01-18 16:20:00', '2024-01-18 16:20:00', 1, 'accepted'),
+(4, 5, '2024-01-19 11:45:00', '2024-01-19 11:45:00', 1, 'excellent'),
+
+-- Lê Văn C đã hoàn thành nhiều bài tập khó
+(5, 4, '2024-01-18 16:20:00', '2024-01-18 16:20:00', 1, 'accepted'),
+(5, 5, '2024-01-19 11:45:00', '2024-01-19 11:45:00', 1, 'excellent'),
+(5, 6, '2024-01-20 13:15:00', '2024-01-20 13:15:00', 1, 'accepted'),
+(5, 7, '2024-01-21 15:30:00', '2024-01-21 15:30:00', 1, 'excellent'),
+
+-- Phạm Thị D đã hoàn thành một số bài tập
+(6, 1, '2024-01-16 14:00:00', '2024-01-16 14:00:00', 1, 'accepted'),
+(6, 2, '2024-01-17 10:00:00', '2024-01-17 10:00:00', 1, 'accepted'),
+(6, 3, '2024-01-18 15:00:00', '2024-01-18 15:00:00', 1, 'good'),
+
+-- Hoàng Văn E đã hoàn thành hầu hết bài tập
+(7, 1, '2024-01-15 16:00:00', '2024-01-15 16:00:00', 1, 'accepted'),
+(7, 2, '2024-01-16 17:00:00', '2024-01-16 17:00:00', 1, 'excellent'),
+(7, 3, '2024-01-17 18:00:00', '2024-01-17 18:00:00', 1, 'excellent'),
+(7, 4, '2024-01-18 19:00:00', '2024-01-18 19:00:00', 1, 'excellent'),
+(7, 5, '2024-01-19 20:00:00', '2024-01-19 20:00:00', 1, 'excellent'),
+(7, 6, '2024-01-20 21:00:00', '2024-01-20 21:00:00', 1, 'excellent'),
+(7, 7, '2024-01-21 22:00:00', '2024-01-21 22:00:00', 1, 'excellent'),
+(7, 8, '2024-01-22 23:00:00', '2024-01-22 23:00:00', 1, 'excellent'),
+
+-- Vũ Thị F đã hoàn thành một số bài tập
+(8, 1, '2024-01-16 16:00:00', '2024-01-16 16:00:00', 1, 'accepted'),
+(8, 2, '2024-01-17 17:00:00', '2024-01-17 17:00:00', 1, 'accepted'),
+(8, 3, '2024-01-18 18:00:00', '2024-01-18 18:00:00', 1, 'good'),
+(8, 4, '2024-01-19 19:00:00', '2024-01-19 19:00:00', 1, 'accepted');
+
 -- =============================================
 -- 3. KIỂM TRA DỮ LIỆU ĐÃ ĐƯỢC INSERT
 -- =============================================
@@ -305,7 +368,15 @@ FROM aq_survey_results sr
 JOIN users u ON sr.user_id = u.id
 ORDER BY sr.total_score DESC;
 
--- 3.8. Thống kê tổng quan
+-- 3.8. Xem completed practices
+SELECT '=== COMPLETED PRACTICES ===' as info;
+SELECT cp.id, u.username, p.title as practice_title, p.difficulty, cp.first_completed_at, cp.last_completed_at, cp.completion_count, cp.best_score
+FROM completed_practices cp
+JOIN users u ON cp.user_id = u.id
+JOIN practices p ON cp.practice_id = p.id
+ORDER BY cp.first_completed_at DESC;
+
+-- 3.9. Thống kê tổng quan
 SELECT '=== STATISTICS ===' as info;
 SELECT 
     (SELECT COUNT(*) FROM users) as total_users,
@@ -314,6 +385,7 @@ SELECT
     (SELECT COUNT(*) FROM submissions) as total_submissions,
     (SELECT COUNT(*) FROM submission_results) as total_submission_results,
     (SELECT COUNT(*) FROM aq_survey_results) as total_survey_results,
+    (SELECT COUNT(*) FROM completed_practices) as total_completed_practices,
     (SELECT COUNT(*) FROM ranks) as total_ranks;
 
 -- =============================================
@@ -357,6 +429,55 @@ FROM practices p
 LEFT JOIN submissions s ON p.id = s.exercise_id
 GROUP BY p.id, p.title, p.difficulty
 ORDER BY submission_count DESC;
+
+-- 4.6. Xem users đã hoàn thành nhiều bài tập nhất
+SELECT '=== TOP USERS BY COMPLETED PRACTICES ===' as info;
+SELECT u.username, u.fullname, COUNT(cp.id) as completed_count, 
+       SUM(CASE WHEN cp.best_score = 'excellent' THEN 1 ELSE 0 END) as excellent_count,
+       SUM(CASE WHEN cp.best_score = 'good' THEN 1 ELSE 0 END) as good_count,
+       SUM(CASE WHEN cp.best_score = 'accepted' THEN 1 ELSE 0 END) as accepted_count
+FROM users u
+LEFT JOIN completed_practices cp ON u.id = cp.user_id
+GROUP BY u.id, u.username, u.fullname
+ORDER BY completed_count DESC;
+
+-- 4.7. Xem practices được hoàn thành nhiều nhất
+SELECT '=== TOP PRACTICES BY COMPLETIONS ===' as info;
+SELECT p.title, p.difficulty, COUNT(cp.id) as completion_count,
+       SUM(CASE WHEN cp.best_score = 'excellent' THEN 1 ELSE 0 END) as excellent_count,
+       SUM(CASE WHEN cp.best_score = 'good' THEN 1 ELSE 0 END) as good_count,
+       SUM(CASE WHEN cp.best_score = 'accepted' THEN 1 ELSE 0 END) as accepted_count
+FROM practices p
+LEFT JOIN completed_practices cp ON p.id = cp.practice_id
+GROUP BY p.id, p.title, p.difficulty
+ORDER BY completion_count DESC;
+
+-- 4.8. Xem thống kê hoàn thành theo độ khó
+SELECT '=== COMPLETION STATS BY DIFFICULTY ===' as info;
+SELECT p.difficulty, 
+       COUNT(cp.id) as total_completions,
+       COUNT(DISTINCT cp.user_id) as unique_users_completed,
+       ROUND(COUNT(cp.id) * 100.0 / (SELECT COUNT(*) FROM users), 2) as completion_percentage
+FROM practices p
+LEFT JOIN completed_practices cp ON p.id = cp.practice_id
+GROUP BY p.difficulty
+ORDER BY FIELD(p.difficulty, 'easy', 'medium', 'hard');
+
+-- 4.9. Xem users chưa hoàn thành bài tập nào
+SELECT '=== USERS WITH NO COMPLETED PRACTICES ===' as info;
+SELECT u.id, u.username, u.fullname, u.experience
+FROM users u
+LEFT JOIN completed_practices cp ON u.id = cp.user_id
+WHERE cp.id IS NULL
+ORDER BY u.experience DESC;
+
+-- 4.10. Xem practices chưa được hoàn thành bởi ai
+SELECT '=== PRACTICES NOT COMPLETED BY ANYONE ===' as info;
+SELECT p.id, p.title, p.difficulty
+FROM practices p
+LEFT JOIN completed_practices cp ON p.id = cp.practice_id
+WHERE cp.id IS NULL
+ORDER BY p.difficulty, p.id;
 
 -- =============================================
 -- KẾT THÚC SCRIPT
