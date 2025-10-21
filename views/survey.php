@@ -269,7 +269,7 @@
             // Tính điểm trung bình cho mỗi category
             Object.keys(categoryGroups).forEach(category => {
                 const scores = categoryGroups[category];
-                categoryScores[category] = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+                categoryScores[category] = Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length));
             });
             
             // Display results

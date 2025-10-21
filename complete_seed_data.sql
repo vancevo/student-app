@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS aq_survey_results (
     endurance_score INT NOT NULL DEFAULT 0,
     total_score INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
@@ -243,15 +243,15 @@ INSERT IGNORE INTO submission_results (submission_id, test_case_id, status, actu
 (5, 10, 'passed', '1', 16, 1024);
 
 -- 2.7. Insert survey results mẫu
-INSERT IGNORE INTO aq_survey_results (user_id, username, control_score, ownership_score, reach_score, endurance_score, total_score) VALUES
-(1, 'admin', 8, 7, 9, 6, 30),
-(2, 'testuser', 6, 8, 7, 9, 30),
-(3, 'nguyenvana', 5, 6, 7, 8, 26),
-(4, 'tranthib', 7, 8, 6, 7, 28),
-(5, 'levanc', 9, 8, 9, 8, 34),
-(6, 'phamthid', 6, 7, 8, 6, 27),
-(7, 'hoangvane', 8, 9, 8, 9, 34),
-(8, 'vuthif', 7, 6, 7, 8, 28);
+INSERT IGNORE INTO aq_survey_results (user_id, username, control_score, ownership_score, reach_score, endurance_score, total_score, created_at, updated_at) VALUES
+(1, 'admin', 8, 7, 9, 6, 30, '2024-01-15 10:00:00', '2024-01-15 10:00:00'),
+(2, 'testuser', 6, 8, 7, 9, 30, '2024-01-15 11:00:00', '2024-01-15 11:00:00'),
+(3, 'nguyenvana', 5, 6, 7, 8, 26, '2024-01-16 09:00:00', '2024-01-16 09:00:00'),
+(4, 'tranthib', 7, 8, 6, 7, 28, '2024-01-16 14:00:00', '2024-01-16 14:00:00'),
+(5, 'levanc', 9, 8, 9, 8, 34, '2024-01-17 10:00:00', '2024-01-17 10:00:00'),
+(6, 'phamthid', 6, 7, 8, 6, 27, '2024-01-17 15:00:00', '2024-01-17 15:00:00'),
+(7, 'hoangvane', 8, 9, 8, 9, 34, '2024-01-18 09:00:00', '2024-01-18 09:00:00'),
+(8, 'vuthif', 7, 6, 7, 8, 28, '2024-01-18 16:00:00', '2024-01-18 16:00:00');
 
 -- =============================================
 -- 3. KIỂM TRA DỮ LIỆU ĐÃ ĐƯỢC INSERT

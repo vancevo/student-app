@@ -119,6 +119,20 @@ require 'partials/header.php';
         <!-- Modal Content -->
         <div class="p-6">
             <?php if ($surveyResults): ?>
+                <!-- Survey Info -->
+                <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-800">Kết quả khảo sát mới nhất</h3>
+                            <p class="text-sm text-blue-600">Thực hiện lúc: <?= date('d/m/Y H:i', strtotime($surveyResults['created_at'])) ?></p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-blue-800"><?= $surveyResults['total_score'] ?></div>
+                            <div class="text-sm text-blue-600">Tổng điểm</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Score Cards -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div class="text-center p-4 bg-blue-50 rounded-lg">
@@ -247,6 +261,51 @@ require 'partials/header.php';
                         </div>
                     </div>
                 </div>
+
+                <!-- Survey History Section -->
+                <?php if (count($surveyHistory) > 1): ?>
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold mb-4">Lịch sử khảo sát</h3>
+                    <div class="space-y-3">
+                        <?php foreach ($surveyHistory as $index => $history): ?>
+                        <div class="bg-gray-50 p-4 rounded-lg <?= $index === 0 ? 'border-2 border-blue-200' : '' ?>">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="flex items-center">
+                                    <span class="font-medium text-gray-800">
+                                        <?= date('d/m/Y H:i', strtotime($history['created_at'])) ?>
+                                    </span>
+                                    <?php if ($index === 0): ?>
+                                    <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Mới nhất</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-bold text-gray-800"><?= $history['total_score'] ?></span>
+                                    <span class="text-sm text-gray-600">điểm</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-4 gap-2 text-sm">
+                                <div class="text-center">
+                                    <div class="font-semibold text-blue-600"><?= number_format($history['control_score'], 1) ?></div>
+                                    <div class="text-gray-500">Control</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-semibold text-green-600"><?= number_format($history['ownership_score'], 1) ?></div>
+                                    <div class="text-gray-500">Ownership</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-semibold text-purple-600"><?= number_format($history['reach_score'], 1) ?></div>
+                                    <div class="text-gray-500">Reach</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-semibold text-red-600"><?= number_format($history['endurance_score'], 1) ?></div>
+                                    <div class="text-gray-500">Endurance</div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
             <?php else: ?>
                 <div class="text-center py-8">
                     <div class="text-gray-400 text-6xl mb-4">
@@ -279,6 +338,8 @@ require 'partials/header.php';
         'reach' => $surveyResults['reach_score'],
         'endurance' => $surveyResults['endurance_score']
     ]) : 'null' ?>;
+    
+    const surveyHistory = <?= json_encode($surveyHistory) ?>;
 
     // Show results modal when clicking on results card
     document.getElementById('results-card').addEventListener('click', function() {

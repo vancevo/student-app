@@ -24,8 +24,11 @@
                 exit;
             }
 
-            // Lấy kết quả khảo sát của user
+            // Lấy kết quả khảo sát mới nhất của user
             $surveyResults = $this->surveyModel->getUserSurveyResults($_SESSION['user_id']);
+            
+            // Lấy lịch sử khảo sát của user
+            $surveyHistory = $this->surveyModel->getAllUserSurveyResults($_SESSION['user_id']);
 
             // Truyền dữ liệu cho view
             $username = $user['username'];

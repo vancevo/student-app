@@ -98,7 +98,7 @@ class DatabaseSeeder {
             endurance_score INT NOT NULL DEFAULT 0,
             total_score INT NOT NULL DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
         
         $this->pdo->exec($sql);
@@ -235,7 +235,7 @@ class DatabaseSeeder {
         $stmt->execute([1, '-5 5', '0', 0]);
 
         // Tạo kết quả khảo sát mẫu
-        $stmt = $this->pdo->prepare("INSERT INTO aq_survey_results (user_id, username, control_score, ownership_score, reach_score, endurance_score, total_score) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $this->pdo->prepare("INSERT INTO aq_survey_results (user_id, username, control_score, ownership_score, reach_score, endurance_score, total_score, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
         // Kết quả mẫu cho admin
         $stmt->execute([1, 'admin', 8, 7, 9, 6, 30]);
         // Kết quả mẫu cho testuser
@@ -247,16 +247,20 @@ class DatabaseSeeder {
      */
     public function reset(): bool {
         try {
-            $this->pdo->beginTransaction();
+            // Tắt foreign key checks để xóa bảng dễ dàng hơn
+            $this->pdo->exec("SET FOREIGN_KEY_CHECKS = 0");
             
-            // Xóa các bảng
-            $this->pdo->exec("DROP TABLE IF EXISTS aq_survey_results");
+            // Xóa các bảng theo thứ tự ngược lại để tránh foreign key constraint
             $this->pdo->exec("DROP TABLE IF EXISTS submission_results");
             $this->pdo->exec("DROP TABLE IF EXISTS submissions");
             $this->pdo->exec("DROP TABLE IF EXISTS test_cases");
+            $this->pdo->exec("DROP TABLE IF EXISTS aq_survey_results");
             $this->pdo->exec("DROP TABLE IF EXISTS practices");
             $this->pdo->exec("DROP TABLE IF EXISTS ranks");
             $this->pdo->exec("DROP TABLE IF EXISTS users");
+            
+            // Bật lại foreign key checks
+            $this->pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
             
             // Tạo lại và seed
             $this->createUsersTable();
@@ -268,11 +272,9 @@ class DatabaseSeeder {
             $this->createSubmissionResultsTable();
             $this->seedSampleData();
             
-            $this->pdo->commit();
             return true;
             
         } catch (Exception $e) {
-            $this->pdo->rollBack();
             error_log("Lỗi khi reset database: " . $e->getMessage());
             return false;
         }
