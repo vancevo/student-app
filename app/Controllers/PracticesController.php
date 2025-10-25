@@ -624,9 +624,11 @@ class PracticesController {
         try {
             $database = Database::getInstance();
             $stmt = $database->getConnection()->prepare("
-                INSERT INTO completed_practices (user_id, practice_id, completed_at) 
-                VALUES (?, ?, NOW())
-                ON DUPLICATE KEY UPDATE completed_at = NOW()
+                INSERT INTO completed_practices (user_id, practice_id, first_completed_at, last_completed_at, completion_count) 
+                VALUES (?, ?, NOW(), NOW(), 1)
+                ON DUPLICATE KEY UPDATE 
+                    last_completed_at = NOW(),
+                    completion_count = completion_count + 1
             ");
             return $stmt->execute([$userId, $practiceId]);
         } catch (Exception $e) {
